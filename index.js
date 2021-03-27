@@ -31,7 +31,7 @@ function HttpTempInfluxTemperatureHumidityhum(log, config) {
 HttpTempInfluxTemperatureHumidityhum.prototype = {
     // Called when HomeKit wants to read our sensor value.
     getRemoteState: function (service, callback) {
-        getLastMesurement(this.influx, 'temperature', 'humidity', function(influxError, temp, humi) {
+        getLastMesurement(this.influx, 'BME280_temperature', 'BME280_humidity', function(influxError, temp, humi) {
             if (influxError) {
                 this.log(influxError)
                 return callback(new Error(influxError))
