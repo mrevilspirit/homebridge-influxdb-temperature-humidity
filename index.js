@@ -3,7 +3,7 @@ let Service, Characteristic;
 const InfluxDB = require('influx')
 
 const getLastMesurement = (influx, temperatureKeyName, humidityKeyName, cb) => {
-    influx.query(`SELECT last(value), last(value) FROM ${temperatureKeyName}, ${humidityKeyName}`)
+    influx.query(`SELECT last(${temperatureKeyName}), last(${humidityKeyName}) FROM feinstaub`)
         .then(result => cb(null, result[1].last, result[0].last))
         .catch(err => cb(err))
 }
@@ -23,6 +23,10 @@ function HttpTempInfluxTemperatureHumidityhum(log, config) {
     this.model = config["model"] || "Accesory"
     this.serial = config["serial"] || "123-321-123"
 
+    this.temperatureKeyname = config["tempkeyname"];
+    this.humidityKeyname = config["humiditykeyname"];
+    this.seriesname = config["seriesname"];
+
     this.influx = new InfluxDB.InfluxDB({
         ...config['influx']
     })
@@ -31,7 +35,7 @@ function HttpTempInfluxTemperatureHumidityhum(log, config) {
 HttpTempInfluxTemperatureHumidityhum.prototype = {
     // Called when HomeKit wants to read our sensor value.
     getRemoteState: function (service, callback) {
-        getLastMesurement(this.influx, 'BME280_temperature', 'BME280_humidity', function(influxError, temp, humi) {
+        getLastMesurement(this.influx, this.temperatureKeyname, this.humidityKeyname, function(influxError, temp, humi) {
             if (influxError) {
                 this.log(influxError)
                 return callback(new Error(influxError))
